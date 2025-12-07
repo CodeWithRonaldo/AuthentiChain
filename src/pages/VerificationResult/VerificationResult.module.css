@@ -1,0 +1,284 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: white;
+}
+
+.header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.backBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+.resultCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid;
+  border-radius: 24px;
+  padding: 3rem;
+  text-align: center;
+  animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.genuine {
+  border-color: #14f195;
+  background: linear-gradient(135deg, rgba(20, 241, 149, 0.1) 0%, rgba(0, 217, 161, 0.05) 100%);
+}
+
+.suspicious {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+}
+
+.revoked {
+  border-color: #ef4444;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+}
+
+.iconWrapper {
+  margin-bottom: 2rem;
+  animation: scaleIn 0.6s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.genuine .iconWrapper {
+  color: #14f195;
+}
+
+.suspicious .iconWrapper {
+  color: #f59e0b;
+}
+
+.revoked .iconWrapper {
+  color: #ef4444;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0 0 1rem;
+}
+
+.genuine .title {
+  color: #14f195;
+}
+
+.suspicious .title {
+  color: #f59e0b;
+}
+
+.revoked .title {
+  color: #ef4444;
+}
+
+.message {
+  font-size: 1.15rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 3rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.details {
+  text-align: left;
+  margin-bottom: 3rem;
+}
+
+.detailSection {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.detailSection:last-child {
+  margin-bottom: 0;
+}
+
+.detailSection h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem;
+  color: white;
+}
+
+.detailGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.detailItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.detailIcon {
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.genuine .detailIcon {
+  color: #14f195;
+}
+
+.suspicious .detailIcon {
+  color: #f59e0b;
+}
+
+.revoked .detailIcon {
+  color: #ef4444;
+}
+
+.detailLabel {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 0.25rem;
+}
+
+.detailValue {
+  font-size: 1rem;
+  color: white;
+  font-weight: 600;
+}
+
+.warningBox {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: left;
+  margin-bottom: 3rem;
+}
+
+.warningBox h4 {
+  margin: 0 0 1rem;
+  color: #f59e0b;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.warningBox ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.warningBox li {
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.warningBox li:last-child {
+  margin-bottom: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.verifyBtn,
+.homeBtn {
+  flex: 1;
+  min-width: 200px;
+  padding: 1.25rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.verifyBtn {
+  background: linear-gradient(135deg, #14f195 0%, #00d9a1 100%);
+  color: #0f172a;
+}
+
+.verifyBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(20, 241, 149, 0.3);
+}
+
+.homeBtn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.homeBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 768px) {
+  .resultCard {
+    padding: 2rem 1.5rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .message {
+    font-size: 1rem;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .verifyBtn,
+  .homeBtn {
+    min-width: 100%;
+  }
+}
