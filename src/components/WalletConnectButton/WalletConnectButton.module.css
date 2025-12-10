@@ -1,0 +1,208 @@
+.wrapper {
+  position: relative;
+  display: inline-block;
+  font-family: inherit;
+}
+
+/* Trigger Button */
+.triggerButton {
+  min-width: 140px;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: linear-gradient(135deg, #14f195 0%, #00d9a1 100%);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.triggerButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(20, 241, 149, 0.3);
+}
+
+.walletIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.chevron {
+  width: 16px;
+  height: 16px;
+  opacity: 0.8;
+}
+
+.connectedInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.connectedIcon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.addressText {
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+/* Dropdown Modal */
+.dropdown {
+  position: absolute;
+  top: 120%;
+  right: 0;
+  width: 280px;
+
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+
+  padding: 8px 0;
+  z-index: 50;
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.label {
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.05em;
+}
+
+.noWallets {
+  padding: 16px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
+
+.walletItem {
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background 0.2s;
+  color: white;
+}
+
+.walletItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.walletItemLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.walletItemIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.walletName {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* Avatar */
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+  color: white;
+  font-size: 10px;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Connected Section */
+.connectedSection {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 8px;
+}
+
+.connectedSectionIcon {
+  width: 32px;
+  height: 32px;
+}
+
+.connectedName {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: white;
+}
+
+.connectedAddressSm {
+  font-size: 0.8rem;
+  color: #14f195;
+  font-family: monospace;
+}
+
+/* Disconnect button */
+.disconnectBtn {
+  padding: 12px 16px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ef4444;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.disconnectBtn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.disconnectIcon {
+  width: 18px;
+  height: 18px;
+}

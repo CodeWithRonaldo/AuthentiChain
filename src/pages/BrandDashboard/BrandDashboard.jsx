@@ -1,44 +1,43 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Package, Plus, ArrowLeft, Wallet } from 'lucide-react';
-import ProductCard from '../../components/ProductCard/ProductCard';
-import styles from './BrandDashboard.module.css';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Package, Plus, ArrowLeft, Wallet } from "lucide-react";
+import ProductCard from "../../components/ProductCard/ProductCard";
+import styles from "./BrandDashboard.module.css";
+import WalletConnectButton from "../../components/WalletConnectButton/WalletConnectButton";
+import { useSolana } from "../../components/SolanaProvider";
 
 function BrandDashboard() {
   const navigate = useNavigate();
-  const [isWalletConnected, setIsWalletConnected] = useState(false);
+  const { connected } = useSolana();
   const [products] = useState([
     {
-      id: '1',
-      name: 'Solana Headphones V1',
-      category: 'Electronics',
-      serial: 'SH-2024-001',
-      createdAt: '2024-12-01',
-      status: 'active',
-      imageUrl: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg'
+      id: "1",
+      name: "Solana Headphones V1",
+      category: "Electronics",
+      serial: "SH-2024-001",
+      createdAt: "2024-12-01",
+      status: "active",
+      imageUrl:
+        "https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg",
     },
     {
-      id: '2',
-      name: 'Premium Sneakers',
-      category: 'Fashion',
-      serial: 'PS-2024-042',
-      createdAt: '2024-12-03',
-      status: 'active',
-      imageUrl: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg'
-    }
+      id: "2",
+      name: "Premium Sneakers",
+      category: "Fashion",
+      serial: "PS-2024-042",
+      createdAt: "2024-12-03",
+      status: "active",
+      imageUrl:
+        "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg",
+    },
   ]);
 
-  const handleConnectWallet = () => {
-    setIsWalletConnected(true);
-  };
+
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <button
-          className={styles.backBtn}
-          onClick={() => navigate('/')}
-        >
+        <button className={styles.backBtn} onClick={() => navigate("/")}>
           <ArrowLeft size={20} />
           Back
         </button>
@@ -48,7 +47,9 @@ function BrandDashboard() {
           <span>Brand Dashboard</span>
         </div>
 
-        {!isWalletConnected ? (
+        <WalletConnectButton />
+
+        {/* {!isWalletConnected ? (
           <button
             className={styles.walletBtn}
             onClick={handleConnectWallet}
@@ -61,7 +62,7 @@ function BrandDashboard() {
             <div className={styles.walletDot}></div>
             <span>Connected</span>
           </div>
-        )}
+        )} */}
       </header>
 
       <main className={styles.main}>
@@ -74,26 +75,22 @@ function BrandDashboard() {
           </div>
           <button
             className={styles.createBtn}
-            onClick={() => navigate('/brand/create')}
-            disabled={!isWalletConnected}
+            onClick={() => navigate("/brand/create")}
+            disabled={!connected}
           >
             <Plus size={20} />
             Create Product
           </button>
         </div>
 
-        {!isWalletConnected ? (
+        {!connected ? (
           <div className={styles.emptyState}>
             <Wallet size={64} />
             <h2>Connect Your Wallet</h2>
             <p>Connect your Solana wallet to manage product certificates</p>
-            <button
-              className={styles.connectBtn}
-              onClick={handleConnectWallet}
-            >
-              <Wallet size={20} />
-              Connect Wallet
-            </button>
+            <div className={styles.buttonWrapper}>
+               <WalletConnectButton />
+            </div>
           </div>
         ) : products.length === 0 ? (
           <div className={styles.emptyState}>
@@ -102,7 +99,7 @@ function BrandDashboard() {
             <p>Create your first product certificate to get started</p>
             <button
               className={styles.connectBtn}
-              onClick={() => navigate('/brand/create')}
+              onClick={() => navigate("/brand/create")}
             >
               <Plus size={20} />
               Create Product
@@ -116,7 +113,7 @@ function BrandDashboard() {
           </div>
         )}
 
-        {isWalletConnected && products.length > 0 && (
+        {connected && products.length > 0 && (
           <div className={styles.stats}>
             <div className={styles.statCard}>
               <div className={styles.statValue}>{products.length}</div>
@@ -124,7 +121,7 @@ function BrandDashboard() {
             </div>
             <div className={styles.statCard}>
               <div className={styles.statValue}>
-                {products.filter(p => p.status === 'active').length}
+                {products.filter((p) => p.status === "active").length}
               </div>
               <div className={styles.statLabel}>Active Certificates</div>
             </div>

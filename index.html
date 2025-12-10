@@ -11,6 +11,14 @@
 </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Global Buffer polyfill to resolve "buffer.slice is not a function"
+      import('buffer').then(({ Buffer }) => {
+        window.Buffer = Buffer;
+        window.global = window;
+        window.process = { env: {} };
+      });
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

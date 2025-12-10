@@ -1,10 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, Upload } from 'lucide-react';
+import { ArrowLeft, Package, Upload, Loader } from 'lucide-react';
 import styles from './CreateProduct.module.css';
+import { useUmi } from '../../hooks/useUmi';
+import { generateSigner, some } from '@metaplex-foundation/umi';
+import { createNft } from '@metaplex-foundation/mpl-token-metadata';
+// import { uploadMetadataToPinata } from '../../utils/pinata';
 
 function CreateProduct() {
   const navigate = useNavigate();
+  const umi = useUmi();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     category: 'Electronics',
@@ -13,9 +19,50 @@ function CreateProduct() {
     imageUrl: ''
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate('/brand');
+    
+    if (!umi.identity.publicKey) {
+      alert("Please connect your wallet first");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      console.log("Minting NFT for:", formData.name);
+
+      // 1. Upload Metadata (Mocked for now - normally interact with Pinata here)
+      // const metaRes = await uploadMetadataToPinata(formData.name, formData.description, formData.imageUrl, []);
+      // const uri = `https://gateway.pinata.cloud/ipfs/${metaRes.IpfsHash}`;
+      const uri = "https://arweave.net/123"; // Placeholder
+
+      // 2. Mint NFT
+      const mint = generateSigner(umi);
+      const transaction = await createNft(umi, {
+        mint,
+        name: formData.name,
+        uri: uri,
+        sellerFeeBasisPoints: 500, // 5%
+        symbol: 'AUTH',
+        isMutable: true,
+        updateAuthority: some(umi.identity.publicKey),
+      });
+
+      const result = await transaction.sendAndConfirm(umi);
+      const signature = result.signature; // In recent Umi versions, this is a byte array 
+
+      console.log('Minted:', mint.publicKey.toString());
+      alert('Product Certificate Created! Mint: ' + mint.publicKey.toString());
+      
+      // Navigate back
+      navigate('/brand');
+
+    } catch (error) {
+      console.error("Minting failed:", error);
+      alert("Minting failed: " + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -31,6 +78,7 @@ function CreateProduct() {
         <button
           className={styles.backBtn}
           onClick={() => navigate('/brand')}
+          disabled={loading}
         >
           <ArrowLeft size={20} />
           Back to Dashboard
@@ -63,6 +111,7 @@ function CreateProduct() {
                 className={styles.input}
                 placeholder="e.g., Solana Headphones V1"
                 required
+                disabled={loading}
               />
             </div>
 
@@ -77,6 +126,7 @@ function CreateProduct() {
                 onChange={handleChange}
                 className={styles.select}
                 required
+                disabled={loading}
               >
                 <option value="Electronics">Electronics</option>
                 <option value="Fashion">Fashion</option>
@@ -100,6 +150,7 @@ function CreateProduct() {
                 className={styles.input}
                 placeholder="e.g., SH-2024-001"
                 required
+                disabled={loading}
               />
               <span className={styles.hint}>
                 Unique identifier for this product
@@ -118,6 +169,7 @@ function CreateProduct() {
                 className={styles.textarea}
                 placeholder="Add product details, specifications, or notes..."
                 rows={4}
+                disabled={loading}
               />
             </div>
 
@@ -134,8 +186,9 @@ function CreateProduct() {
                   onChange={handleChange}
                   className={styles.input}
                   placeholder="https://example.com/image.jpg"
+                  disabled={loading}
                 />
-                <button type="button" className={styles.uploadBtn}>
+                <button type="button" className={styles.uploadBtn} disabled={loading}>
                   <Upload size={18} />
                   Upload
                 </button>
@@ -156,14 +209,20 @@ function CreateProduct() {
                 type="button"
                 className={styles.cancelBtn}
                 onClick={() => navigate('/brand')}
+                disabled={loading}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 className={styles.submitBtn}
+                disabled={loading}
               >
-                Create Certificate
+                {loading ? (
+                   <span style={{display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center'}}>
+                     <Loader size={18} className={styles.spin} /> Creating...
+                   </span>
+                ) : 'Create Certificate'}
               </button>
             </div>
           </form>
