@@ -2,14 +2,15 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Package, Upload, Loader } from 'lucide-react';
 import styles from './CreateProduct.module.css';
-import { useUmi } from '../../hooks/useUmi';
-import { generateSigner, some } from '@metaplex-foundation/umi';
-import { createNft } from '@metaplex-foundation/mpl-token-metadata';
-// import { uploadMetadataToPinata } from '../../utils/pinata';
+import { useMetaplex } from '../../hooks/useMetaplex';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { toMetaplexFile } from '@metaplex-foundation/js';
 
 function CreateProduct() {
   const navigate = useNavigate();
-  const umi = useUmi();
+  const { metaplex: mx } = useMetaplex();
+  const wallet = useWallet();
+  
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -22,7 +23,7 @@ function CreateProduct() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!umi.identity.publicKey) {
+    if (!wallet.connected || !wallet.publicKey) {
       alert("Please connect your wallet first");
       return;
     }
@@ -31,28 +32,45 @@ function CreateProduct() {
     try {
       console.log("Minting NFT for:", formData.name);
 
-      // 1. Upload Metadata (Mocked for now - normally interact with Pinata here)
-      // const metaRes = await uploadMetadataToPinata(formData.name, formData.description, formData.imageUrl, []);
-      // const uri = `https://gateway.pinata.cloud/ipfs/${metaRes.IpfsHash}`;
-      const uri = "https://arweave.net/123"; // Placeholder
+      // MOCKED: In a real app, you'd convert a file input to a Buffer/ArrayBuffer
+      // For this demo, we mock an image upload using a buffer from a string
+      const buffer = Buffer.from("mock-image-data");
+      const file = toMetaplexFile(buffer, "product-image.png");
 
-      // 2. Mint NFT
-      const mint = generateSigner(umi);
-      const transaction = await createNft(umi, {
-        mint,
-        name: formData.name,
-        uri: uri,
-        sellerFeeBasisPoints: 500, // 5%
-        symbol: 'AUTH',
-        isMutable: true,
-        updateAuthority: some(umi.identity.publicKey),
-      });
+      // 1. Upload Metadata using Metaplex util
+      const { uri } = await mx
+        .nfts()
+        .uploadMetadata({
+          name: formData.name,
+          description: formData.description,
+          image: formData.imageUrl || "https://arweave.net/placeholder", // Fallback if no image
+          properties: {
+            files: [
+              {
+                type: "image/png",
+                uri: formData.imageUrl || "https://arweave.net/placeholder",
+              },
+            ],
+          },
+          attributes: [
+            { trait_type: "Category", value: formData.category },
+            { trait_type: "Serial", value: formData.serial }
+          ]
+        });
 
-      const result = await transaction.sendAndConfirm(umi);
-      const signature = result.signature; // In recent Umi versions, this is a byte array 
+      console.log("Metadata uploaded:", uri);
 
-      console.log('Minted:', mint.publicKey.toString());
-      alert('Product Certificate Created! Mint: ' + mint.publicKey.toString());
+      // 2. Create NFT
+      const { nft } = await mx
+        .nfts()
+        .create({
+          uri,
+          name: formData.name,
+          sellerFeeBasisPoints: 500, // 5%
+        });
+
+      console.log('Minted NFT:', nft.address.toString());
+      alert('Product Certificate Created! Mint: ' + nft.address.toString());
       
       // Navigate back
       navigate('/brand');

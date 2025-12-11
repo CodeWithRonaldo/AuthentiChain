@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 
-// Explicitly polyfill global object for libraries that expect it (like some Solana deps)
+// Explicitly polyfill global object
 if (typeof global === 'undefined') {
   window.global = window;
 }
@@ -8,4 +8,9 @@ if (typeof global === 'undefined') {
 // Explicitly polyfill Buffer
 if (typeof window.Buffer === 'undefined') {
   window.Buffer = Buffer;
+}
+
+// Basic process polyfill for some libs
+if (typeof window.process === 'undefined') {
+  window.process = { env: {} };
 }

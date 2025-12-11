@@ -11,10 +11,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {
-    "@metaplex-foundation/mpl-token-metadata": "^3.4.0",
-    "@metaplex-foundation/umi": "^1.4.1",
-    "@metaplex-foundation/umi-bundle-defaults": "^1.4.1",
-    "@metaplex-foundation/umi-signer-wallet-adapters": "^1.4.1",
+    "@metaplex-foundation/js": "^0.20.1",
     "@solana-program/memo": "^0.10.0",
     "@solana/kit": "^5.0.0",
     "@solana/react": "^5.0.0",

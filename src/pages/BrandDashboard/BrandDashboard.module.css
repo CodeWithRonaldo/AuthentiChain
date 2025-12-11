@@ -139,6 +139,28 @@
   font-family: inherit;
 }
 
+.refreshBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.refreshBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.refreshBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .createBtn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(20, 241, 149, 0.3);
@@ -249,4 +271,16 @@
   .productsGrid {
     grid-template-columns: 1fr;
   }
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
 }

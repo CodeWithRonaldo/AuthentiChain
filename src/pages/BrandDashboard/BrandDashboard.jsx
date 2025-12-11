@@ -1,38 +1,73 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Package, Plus, ArrowLeft, Wallet } from "lucide-react";
+import { Package, Plus, ArrowLeft, Wallet, Loader, RefreshCw } from "lucide-react";
 import ProductCard from "../../components/ProductCard/ProductCard";
 import styles from "./BrandDashboard.module.css";
 import WalletConnectButton from "../../components/WalletConnectButton/WalletConnectButton";
 import { useSolana } from "../../components/SolanaProvider";
+import { useMetaplex } from "../../hooks/useMetaplex";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 function BrandDashboard() {
   const navigate = useNavigate();
   const { connected } = useSolana();
-  const [products] = useState([
-    {
-      id: "1",
-      name: "Solana Headphones V1",
-      category: "Electronics",
-      serial: "SH-2024-001",
-      createdAt: "2024-12-01",
-      status: "active",
-      imageUrl:
-        "https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg",
-    },
-    {
-      id: "2",
-      name: "Premium Sneakers",
-      category: "Fashion",
-      serial: "PS-2024-042",
-      createdAt: "2024-12-03",
-      status: "active",
-      imageUrl:
-        "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg",
-    },
-  ]);
+  const { metaplex: mx } = useMetaplex();
+  const wallet = useWallet();
+  
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
+  const fetchNFTs = async () => {
+    if (!wallet.connected || !wallet.publicKey) {
+      setProducts([]);
+      return;
+    }
 
+    setLoading(true);
+    try {
+      console.log("Fetching NFTs for:", wallet.publicKey.toString());
+      const nfts = await mx
+        .nfts()
+        .findAllByOwner({ owner: wallet.publicKey });
+      
+      console.log("Found raw NFTs:", nfts);
+
+      const formattedProducts = await Promise.all(nfts.map(async (nft) => {
+        let metadata = nft.json;
+        if (!metadata && nft.uri) {
+            try {
+              const response = await fetch(nft.uri).catch(() => null);
+              if (response && response.ok) {
+                metadata = await response.json();
+              }
+            } catch (e) {
+              console.warn("Failed to fetch metadata for", nft.address.toBase58());
+            }
+        }
+
+        return {
+          id: nft.address.toString(),
+          name: nft.name,
+          category: metadata?.attributes?.find(a => a.trait_type === 'Category')?.value || "Unknown",
+          serial: metadata?.attributes?.find(a => a.trait_type === 'Serial')?.value || "N/A",
+          createdAt: new Date().toISOString(),
+          status: "active",
+          imageUrl: metadata?.image || "https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg", 
+        };
+      }));
+
+      console.log("Formatted products:", formattedProducts);
+      setProducts(formattedProducts);
+    } catch (error) {
+      console.error("Failed to fetch NFTs:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNFTs();
+  }, [wallet.connected, wallet.publicKey, mx]);
 
   return (
     <div className={styles.container}>
@@ -48,21 +83,6 @@ function BrandDashboard() {
         </div>
 
         <WalletConnectButton />
-
-        {/* {!isWalletConnected ? (
-          <button
-            className={styles.walletBtn}
-            onClick={handleConnectWallet}
-          >
-            <Wallet size={20} />
-            Connect Wallet
-          </button>
-        ) : (
-          <div className={styles.walletConnected}>
-            <div className={styles.walletDot}></div>
-            <span>Connected</span>
-          </div>
-        )} */}
       </header>
 
       <main className={styles.main}>
@@ -73,14 +93,23 @@ function BrandDashboard() {
               Manage your product certificates and track verification activity
             </p>
           </div>
-          <button
-            className={styles.createBtn}
-            onClick={() => navigate("/brand/create")}
-            disabled={!connected}
-          >
-            <Plus size={20} />
-            Create Product
-          </button>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button 
+              onClick={fetchNFTs} 
+              className={styles.refreshBtn}
+              disabled={loading || !connected}
+            >
+              <RefreshCw size={20} className={loading ? styles.spin : ''} />
+            </button>
+            <button
+              className={styles.createBtn}
+              onClick={() => navigate("/brand/create")}
+              disabled={!connected}
+            >
+              <Plus size={20} />
+              Create Product
+            </button>
+          </div>
         </div>
 
         {!connected ? (
@@ -91,6 +120,11 @@ function BrandDashboard() {
             <div className={styles.buttonWrapper}>
                <WalletConnectButton />
             </div>
+          </div>
+        ) : loading && products.length === 0 ? (
+          <div className={styles.emptyState}>
+            <Loader size={48} className={styles.spin} />
+            <p>Loading your products from Solana...</p>
           </div>
         ) : products.length === 0 ? (
           <div className={styles.emptyState}>
