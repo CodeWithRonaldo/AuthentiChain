@@ -4,7 +4,7 @@ import { ArrowLeft, Package, Upload, Loader } from 'lucide-react';
 import styles from './CreateProduct.module.css';
 import { useMetaplex } from '../../hooks/useMetaplex';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { toMetaplexFile } from '@metaplex-foundation/js';
+import { uploadToPinata, uploadMetadataToPinata } from '../../utils/pinata';
 
 function CreateProduct() {
   const navigate = useNavigate();
@@ -12,13 +12,24 @@ function CreateProduct() {
   const wallet = useWallet();
   
   const [loading, setLoading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState(""); // To show specific progress
   const [formData, setFormData] = useState({
     name: '',
     category: 'Electronics',
     serial: '',
     description: '',
-    imageUrl: ''
+    imageUrl: '', // We can still allow manual URL
+    imageFile: null // For actual file upload
   });
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData({
+        ...formData,
+        imageFile: e.target.files[0]
+      });
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,42 +40,48 @@ function CreateProduct() {
     }
 
     setLoading(true);
+    setUploadStatus("Starting creation...");
+
     try {
       console.log("Minting NFT for:", formData.name);
 
-      // MOCKED: In a real app, you'd convert a file input to a Buffer/ArrayBuffer
-      // For this demo, we mock an image upload using a buffer from a string
-      const buffer = Buffer.from("mock-image-data");
-      const file = toMetaplexFile(buffer, "product-image.png");
+      let imageUri = formData.imageUrl;
 
-      // 1. Upload Metadata using Metaplex util
-      const { uri } = await mx
-        .nfts()
-        .uploadMetadata({
-          name: formData.name,
-          description: formData.description,
-          image: formData.imageUrl || "https://arweave.net/placeholder", // Fallback if no image
-          properties: {
-            files: [
-              {
-                type: "image/png",
-                uri: formData.imageUrl || "https://arweave.net/placeholder",
-              },
-            ],
-          },
-          attributes: [
-            { trait_type: "Category", value: formData.category },
-            { trait_type: "Serial", value: formData.serial }
-          ]
-        });
+      // 1. Upload Image to Pinata (if file exists)
+      if (formData.imageFile) {
+        setUploadStatus("Uploading image to Pinata...");
+        const imageResult = await uploadToPinata(formData.imageFile);
+        imageUri = `https://${import.meta.env.VITE_PINATA_GATEWAY}/ipfs/${imageResult.IpfsHash}`;
+        console.log("Image uploaded:", imageUri);
+      }
 
-      console.log("Metadata uploaded:", uri);
+      if (!imageUri) {
+        throw new Error("Please provide an image URL or upload a file.");
+      }
 
-      // 2. Create NFT
+      // 2. Upload Metadata to Pinata
+      setUploadStatus("Uploading metadata to Pinata...");
+      const attributes = [
+        { trait_type: "Category", value: formData.category },
+        { trait_type: "Serial", value: formData.serial }
+      ];
+
+      const metadataResult = await uploadMetadataToPinata(
+        formData.name,
+        formData.description,
+        imageUri,
+        attributes
+      );
+      
+      const metadataUri = `https://${import.meta.env.VITE_PINATA_GATEWAY}/ipfs/${metadataResult.IpfsHash}`;
+      console.log("Metadata uploaded:", metadataUri);
+
+      // 3. Create NFT on Solana
+      setUploadStatus("Minting on Solana...");
       const { nft } = await mx
         .nfts()
         .create({
-          uri,
+          uri: metadataUri,
           name: formData.name,
           sellerFeeBasisPoints: 500, // 5%
         });
@@ -72,7 +89,6 @@ function CreateProduct() {
       console.log('Minted NFT:', nft.address.toString());
       alert('Product Certificate Created! Mint: ' + nft.address.toString());
       
-      // Navigate back
       navigate('/brand');
 
     } catch (error) {
@@ -80,6 +96,7 @@ function CreateProduct() {
       alert("Minting failed: " + error.message);
     } finally {
       setLoading(false);
+      setUploadStatus("");
     }
   };
 
@@ -193,9 +210,17 @@ function CreateProduct() {
 
             <div className={styles.formGroup}>
               <label htmlFor="imageUrl" className={styles.label}>
-                Product Image URL (Optional)
+                Product Image (Upload File)
               </label>
               <div className={styles.imageInput}>
+                 <input
+                  type="file"
+                  id="imageFile"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                  accept="image/*"
+                />
+                {/* 
                 <input
                   type="url"
                   id="imageUrl"
@@ -205,19 +230,41 @@ function CreateProduct() {
                   className={styles.input}
                   placeholder="https://example.com/image.jpg"
                   disabled={loading}
-                />
-                <button type="button" className={styles.uploadBtn} disabled={loading}>
-                  <Upload size={18} />
-                  Upload
-                </button>
+                /> 
+                */}
+                <div 
+                  className={styles.uploadZone}
+                  onClick={() => document.getElementById('imageFile').click()}
+                  style={{ 
+                    border: '2px dashed rgba(255,255,255,0.2)', 
+                    borderRadius: '8px',
+                    padding: '2rem',
+                    width: '100%',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    background: 'rgba(255,255,255,0.05)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  <Upload size={32} color="#14f195" />
+                  <span>
+                    {formData.imageFile 
+                      ? `Selected: ${formData.imageFile.name}` 
+                      : "Click to upload product image"}
+                  </span>
+                </div>
               </div>
             </div>
 
             <div className={styles.infoBox}>
               <h4>What happens next?</h4>
               <ul>
+                <li>Image & Metadata will be uploaded to IPFS (Pinata)</li>
                 <li>A unique certificate NFT will be minted on Solana</li>
-                <li>A QR code will be generated for product verification</li>
                 <li>The certificate will be stored on the blockchain</li>
               </ul>
             </div>
@@ -238,7 +285,8 @@ function CreateProduct() {
               >
                 {loading ? (
                    <span style={{display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center'}}>
-                     <Loader size={18} className={styles.spin} /> Creating...
+                     <Loader size={18} className={styles.spin} /> 
+                     {uploadStatus || "Processing..."}
                    </span>
                 ) : 'Create Certificate'}
               </button>

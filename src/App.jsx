@@ -15,7 +15,7 @@ function App() {
           <Route path="/brand" element={<BrandDashboard />} />
           <Route path="/brand/create" element={<CreateProduct />} />
           <Route path="/verify" element={<VerifyProduct />} />
-          <Route path="/result/:status" element={<VerificationResult />} />
+          <Route path="/result/:mintAddress" element={<VerificationResult />} />
         </Routes>
       </Router>
     </SolanaProvider>

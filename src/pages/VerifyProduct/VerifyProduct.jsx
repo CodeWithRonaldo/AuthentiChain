@@ -1,25 +1,37 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Camera, Hash } from 'lucide-react';
 import styles from './VerifyProduct.module.css';
 
 function VerifyProduct() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [productId, setProductId] = useState('');
   const [isScanning, setIsScanning] = useState(false);
+
+  useEffect(() => {
+    const queryProductId = searchParams.get('productId');
+    if (queryProductId) {
+      // Auto-scan scenario: Redirect immediately to result
+      navigate(`/result/${queryProductId}`);
+    }
+  }, [searchParams, navigate]);
 
   const handleScan = () => {
     setIsScanning(true);
     setTimeout(() => {
       setIsScanning(false);
-      navigate('/result/genuine');
+      // For demo purposes, we redirect to a placeholder or prompt. 
+      // In a real app with QR scanner, you'd get the value here.
+      alert("Scanner demo: detecting a code...");
+      // navigate('/result/GENUINE_MINT_ADDRESS_HERE'); 
     }, 2000);
   };
 
   const handleManualVerify = (e) => {
     e.preventDefault();
     if (productId.trim()) {
-      navigate('/result/genuine');
+      navigate(`/result/${productId.trim()}`);
     }
   };
 

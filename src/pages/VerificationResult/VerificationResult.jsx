@@ -1,49 +1,104 @@
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { CheckCircle, XCircle, AlertTriangle, ArrowLeft, Package, Calendar, MapPin } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, ArrowLeft, Package, Calendar, MapPin, Loader, ExternalLink } from 'lucide-react';
 import styles from './VerificationResult.module.css';
+import { useMetaplex } from '../../hooks/useMetaplex';
+import { PublicKey } from '@solana/web3.js';
 
 function VerificationResult() {
   const navigate = useNavigate();
-  const { status } = useParams();
+  const { mintAddress } = useParams();
+  const { metaplex: mx } = useMetaplex();
+
+  const [status, setStatus] = useState('loading'); // loading, genuine, suspicious, invalid
+  const [productData, setProductData] = useState(null);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    const verifyProduct = async () => {
+      try {
+        // Basic validation of mint address format
+        try {
+          new PublicKey(mintAddress);
+        } catch (e) {
+          setStatus('invalid');
+          setErrorMsg("Invalid Product ID format.");
+          return;
+        }
+
+        console.log("Verifying Mint:", mintAddress);
+        const nft = await mx.nfts().findByMint({ mintAddress: new PublicKey(mintAddress) });
+
+        console.log("NFT Found:", nft);
+        
+        let metadata = nft.json;
+        if (!metadata && nft.uri) {
+             try {
+               const response = await fetch(nft.uri).catch(() => null);
+               if (response && response.ok) {
+                 metadata = await response.json();
+               }
+             } catch (e) {
+               console.warn("Failed to fetch metadata URI");
+             }
+        }
+
+        setProductData({
+            name: nft.name,
+            image: metadata?.image,
+            serial: metadata?.attributes?.find(a => a.trait_type === 'Serial')?.value || "N/A",
+            category: metadata?.attributes?.find(a => a.trait_type === 'Category')?.value || "Unknown",
+            mint: nft.address.toString(),
+            owner: nft.updateAuthorityAddress.toString() // In a real app, you'd check if this matches the Brand's wallet
+        });
+        
+        setStatus('genuine');
+
+      } catch (error) {
+        console.error("Verification failed:", error);
+        setStatus('suspicious');
+        setErrorMsg("Product not found on blockchain.");
+      }
+    };
+
+    if (mintAddress && mx) {
+      verifyProduct();
+    }
+  }, [mintAddress, mx]);
 
   const getStatusConfig = () => {
     switch (status) {
+      case 'loading':
+        return {
+          icon: <Loader size={80} className={styles.spin} />,
+          title: 'Verifying...',
+          message: 'Checking blockchain records...',
+          className: styles.loading,
+          details: null
+        };
       case 'genuine':
         return {
           icon: <CheckCircle size={80} />,
           title: 'Genuine Product',
-          message: 'This product is authentic and verified on the blockchain',
+          message: 'This product is authentic and verified on the Solana blockchain',
           className: styles.genuine,
-          details: {
-            brand: 'Premium Brand Co.',
-            productName: 'Solana Headphones V1',
-            serial: 'SH-2024-001',
-            manufactured: 'December 1, 2024',
-            firstScan: 'December 5, 2024',
-            location: 'San Francisco, CA'
-          }
+          details: productData
         };
       case 'suspicious':
         return {
           icon: <AlertTriangle size={80} />,
           title: 'Suspicious Product',
-          message: 'This QR code is not registered in our system',
+          message: errorMsg || 'This QR code is not registered in our system',
           className: styles.suspicious,
           details: null
         };
-      case 'revoked':
+      case 'invalid':
         return {
           icon: <XCircle size={80} />,
-          title: 'Revoked Certificate',
-          message: 'This product has been flagged by the brand',
-          className: styles.revoked,
-          details: {
-            brand: 'Premium Brand Co.',
-            productName: 'Solana Headphones V1',
-            serial: 'SH-2024-001',
-            revokedDate: 'December 4, 2024',
-            reason: 'Reported as stolen'
-          }
+          title: 'Invalid ID',
+          message: errorMsg,
+          className: styles.revoked, // Reusing revoked style for error
+          details: null
         };
       default:
         return {
@@ -81,22 +136,28 @@ function VerificationResult() {
 
           {config.details && (
             <div className={styles.details}>
+                {config.details.image && (
+                    <div className={styles.productImageContainer}>
+                        <img src={config.details.image} alt="Product" className={styles.productImage} />
+                    </div>
+                )}
+
               <div className={styles.detailSection}>
                 <h3>Product Information</h3>
                 <div className={styles.detailGrid}>
                   <div className={styles.detailItem}>
                     <Package className={styles.detailIcon} size={20} />
                     <div>
-                      <div className={styles.detailLabel}>Brand</div>
-                      <div className={styles.detailValue}>{config.details.brand}</div>
+                      <div className={styles.detailLabel}>Product Name</div>
+                      <div className={styles.detailValue}>{config.details.name}</div>
                     </div>
                   </div>
 
                   <div className={styles.detailItem}>
                     <Package className={styles.detailIcon} size={20} />
                     <div>
-                      <div className={styles.detailLabel}>Product</div>
-                      <div className={styles.detailValue}>{config.details.productName}</div>
+                      <div className={styles.detailLabel}>Category</div>
+                      <div className={styles.detailValue}>{config.details.category}</div>
                     </div>
                   </div>
 
@@ -109,71 +170,27 @@ function VerificationResult() {
                   </div>
                 </div>
               </div>
-
-              {status === 'genuine' && (
-                <div className={styles.detailSection}>
-                  <h3>Verification Details</h3>
-                  <div className={styles.detailGrid}>
-                    <div className={styles.detailItem}>
-                      <Calendar className={styles.detailIcon} size={20} />
-                      <div>
-                        <div className={styles.detailLabel}>Manufactured</div>
-                        <div className={styles.detailValue}>{config.details.manufactured}</div>
-                      </div>
-                    </div>
-
-                    <div className={styles.detailItem}>
-                      <Calendar className={styles.detailIcon} size={20} />
-                      <div>
-                        <div className={styles.detailLabel}>First Scanned</div>
-                        <div className={styles.detailValue}>{config.details.firstScan}</div>
-                      </div>
-                    </div>
-
-                    <div className={styles.detailItem}>
-                      <MapPin className={styles.detailIcon} size={20} />
-                      <div>
-                        <div className={styles.detailLabel}>Location</div>
-                        <div className={styles.detailValue}>{config.details.location}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {status === 'revoked' && (
-                <div className={styles.detailSection}>
-                  <h3>Revocation Details</h3>
-                  <div className={styles.detailGrid}>
-                    <div className={styles.detailItem}>
-                      <Calendar className={styles.detailIcon} size={20} />
-                      <div>
-                        <div className={styles.detailLabel}>Revoked Date</div>
-                        <div className={styles.detailValue}>{config.details.revokedDate}</div>
-                      </div>
-                    </div>
-
-                    <div className={styles.detailItem}>
-                      <AlertTriangle className={styles.detailIcon} size={20} />
-                      <div>
-                        <div className={styles.detailLabel}>Reason</div>
-                        <div className={styles.detailValue}>{config.details.reason}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+              
+               <div className={styles.explorerLink}>
+                  <a 
+                    href={`https://explorer.solana.com/address/${config.details.mint}?cluster=devnet`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className={styles.explorerBtn}
+                  >
+                    View on Solana Explorer <ExternalLink size={16} />
+                  </a>
+              </div>
             </div>
           )}
 
-          {!config.details && (
+          {!config.details && status !== 'loading' && (
             <div className={styles.warningBox}>
-              <h4>What should I do?</h4>
+              <h4>What does this mean?</h4>
               <ul>
-                <li>Double-check the QR code on your product</li>
-                <li>Verify you're scanning an official product label</li>
-                <li>Contact the seller or brand for verification</li>
-                <li>Report suspicious products to prevent fraud</li>
+                <li>The Product ID entered does not exist on the blockchain.</li>
+                <li>You may have entered the ID incorrectly.</li>
+                <li>This product may be counterfeit.</li>
               </ul>
             </div>
           )}
