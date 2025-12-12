@@ -219,6 +219,7 @@ function CreateProduct() {
                   onChange={handleFileChange}
                   style={{ display: 'none' }}
                   accept="image/*"
+                  required
                 />
                 {/* 
                 <input
