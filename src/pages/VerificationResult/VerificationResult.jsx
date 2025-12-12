@@ -26,8 +26,19 @@ function VerificationResult() {
           return;
         }
 
+        const mintPubkey = new PublicKey(mintAddress);
         console.log("Verifying Mint:", mintAddress);
-        const nft = await mx.nfts().findByMint({ mintAddress: new PublicKey(mintAddress) });
+        console.log("RPC Endpoint:", mx.connection.rpcEndpoint);
+
+        // 1. Check if Mint Account exists at all
+        const mintInfo = await mx.connection.getAccountInfo(mintPubkey);
+        if (!mintInfo) {
+          throw new Error("Mint Account not found on " + (mx.connection.rpcEndpoint.includes("devnet") ? "Devnet" : "Network"));
+        }
+        console.log("Mint Account found. Owner:", mintInfo.owner.toString());
+
+        // 2. Try to find Metadata
+        const nft = await mx.nfts().findByMint({ mintAddress: mintPubkey });
 
         console.log("NFT Found:", nft);
         
@@ -57,7 +68,8 @@ function VerificationResult() {
       } catch (error) {
         console.error("Verification failed:", error);
         setStatus('suspicious');
-        setErrorMsg("Product not found on blockchain.");
+        // Show actual error for debugging
+        setErrorMsg(`Failed to verify ${mintAddress.slice(0, 8)}...: ${error.message}`);
       }
     };
 

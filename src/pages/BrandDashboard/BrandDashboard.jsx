@@ -46,7 +46,7 @@ function BrandDashboard() {
         }
 
         return {
-          id: nft.address.toString(),
+          id: nft.mintAddress.toString(),
           name: nft.name,
           category: metadata?.attributes?.find(a => a.trait_type === 'Category')?.value || "Unknown",
           serial: metadata?.attributes?.find(a => a.trait_type === 'Serial')?.value || "N/A",
