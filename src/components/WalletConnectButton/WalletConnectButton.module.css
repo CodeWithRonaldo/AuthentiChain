@@ -75,6 +75,44 @@
   animation: slideDown 0.2s ease-out;
 }
 
+/* Mobile responsive positioning */
+@media (max-width: 768px) {
+  .dropdown {
+    position: fixed;
+    right: 1rem;
+    left: 1rem;
+    width: auto;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .triggerButton {
+    min-width: auto;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    justify-content: center;
+    position: relative;
+  }
+
+  .triggerButton span {
+    display: none;
+  }
+
+  .walletIcon,
+  .connectedInfo {
+    margin: 0;
+  }
+
+  .chevron {
+    display: none;
+  }
+
+  .addressText {
+    display: none;
+  }
+}
+
 @keyframes slideDown {
   from {
     opacity: 0;

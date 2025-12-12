@@ -79,15 +79,12 @@ export default function WalletConnectButton() {
 
   const [open, setOpen] = useState(false);
 
-  // Filter installed wallets for cleaner UI (optional, but standard adapter returns many)
-  // We can just show all of them.
   const availableWallets = useMemo(() => {
     return wallets.filter((w) => w.readyState === "Installed" || w.readyState === "Loadable");
   }, [wallets]);
 
   const handleWalletSelect = (walletName) => {
     select(walletName);
-    // Auto-connect is usually handled by provider, but we can close modal
     setOpen(false);
   };
 
