@@ -42,7 +42,7 @@ export const uploadMetadataToPinata = async (name, description, imageUri, attrib
     properties: {
       files: [
         {
-          type: "image/png", // You might want to make this dynamic based on the actual file type
+          type: "image/png",
           uri: imageUri,
         },
       ],

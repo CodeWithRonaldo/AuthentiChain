@@ -1,292 +1,98 @@
 # AuthentiChain
 
-A blockchain-based product authentication system built on Solana that enables brands to mint NFT certificates for their products and allows consumers to verify product authenticity in real-time.
+**Securing product authenticity through Solana-powered NFT certificates.**
 
-## 🌟 Project Overview
+## Overview
 
-AuthentiChain leverages blockchain technology to combat counterfeit products by creating immutable, verifiable digital certificates for physical goods. Each product receives a unique NFT certificate stored on the Solana blockchain, providing a transparent and tamper-proof authentication mechanism.
+AuthentiChain is a decentralized product authentication platform built on the **Solana blockchain**, enabling brands to mint **NFT-based certificates** for physical products and allowing consumers to verify authenticity instantly using QR codes.
 
-## 📋 About
+By leveraging Solana’s **high-speed, low-cost, and immutable ledger**, AuthentiChain creates tamper-proof digital records that permanently link physical products to verifiable on-chain proof—eliminating counterfeits and restoring consumer trust.
 
-AuthentiChain is a decentralized application (dApp) that bridges the gap between physical products and blockchain technology. Brands can create digital certificates for their products, while consumers can instantly verify authenticity by scanning QR codes. All certificates are stored on Solana's high-performance blockchain, ensuring fast, low-cost, and permanent verification records.
+## Core Features
 
-## ✨ Core Features
+- **NFT Product Certificates** – Each product is minted as a unique NFT on Solana.
+- **Instant QR Verification** – Consumers scan a QR code to verify authenticity in real time.
+- **On-Chain Immutability** – Certificates cannot be altered or forged once minted.
+- **Brand Dashboards** – Manage and track all product certificates from one interface.
+- **IPFS Storage** – Product images and metadata stored on Pinata (IPFS).
+- **Wallet-Based Authentication** – Secure access using Solana wallets.
+- **Explorer Transparency** – Direct links to Solana Explorer for public verification.
 
-### For Brands
-- **NFT Certificate Minting**: Create unique blockchain certificates for products
-- **Product Management Dashboard**: View and manage all minted product certificates
-- **IPFS Storage Integration**: Product images and metadata stored on Pinata (IPFS)
-- **QR Code Generation**: Automatic QR code creation for each product certificate
-- **Real-time Tracking**: Monitor all products and their verification status
+## Real Use Case: A Brand’s Anti-Counterfeit Flow
 
-### For Consumers
-- **QR Code Scanning**: Scan product QR codes using mobile camera
-- **Instant Verification**: Real-time authentication against blockchain records
-- **Product Details**: View complete product information including images, serial numbers, and categories
-- **Blockchain Explorer Links**: Direct links to view certificates on Solana Explorer
+A luxury brand manufactures a new product line and uses AuthentiChain to mint NFT certificates for each product. A QR code is attached to the product packaging.
 
-### Technical Features
-- **Solana Devnet Integration**: Fast and cost-effective blockchain transactions
-- **Wallet Adapter Support**: Compatible with Phantom, Solflare, and other Solana wallets
-- **Responsive Design**: Optimized for both desktop and mobile devices
-- **Glassmorphism UI**: Modern, premium user interface design
-- **Real-time Updates**: Dynamic data fetching from blockchain
+When a customer scans the QR code:
+- The app checks Solana on-chain records
+- Verifies the NFT metadata
+- Confirms whether the product is genuine or suspicious
 
-## 🔧 How It Works
+## How It Works
 
-### Architecture Overview
+### Certificate Creation (Brands)
+1. Brand connects a Solana wallet  
+2. Uploads product details and image  
+3. Image and metadata stored on IPFS via Pinata  
+4. NFT minted on Solana using Metaplex  
+5. QR code generated from the NFT mint address  
 
-AuthentiChain uses **Metaplex Protocol** as the core NFT infrastructure on Solana. Metaplex is the industry-standard framework for creating, managing, and querying NFTs on Solana - similar to how ERC-721 is the standard for Ethereum NFTs.
+### Product Verification (Consumers)
+1. Scan QR code  
+2. NFT data fetched from Solana  
+3. Metadata retrieved from IPFS  
+4. Authenticity status displayed instantly  
 
-#### Why Metaplex?
+## How Solana Powers AuthentiChain
 
-- **Standardization**: Creates NFTs compatible with all Solana marketplaces and wallets
-- **Abstraction**: Handles complex Solana program interactions automatically
-- **Proven**: Powers major Solana NFT projects and marketplaces
-- **Feature-Rich**: Built-in support for royalties, metadata standards, and collections
+Solana provides:
+- Fast transaction confirmation
+- Low-cost NFT minting
+- Immutable product records
+- Public verification via Solana Explorer
 
-### Metaplex NFT Structure
+AuthentiChain uses **Metaplex**, Solana’s NFT standard, ensuring full compatibility with wallets and marketplaces.
 
-Each product certificate consists of three blockchain accounts:
+## Tech Stack
 
-1. **🪙 Mint Account** (The NFT's unique identifier)
-   - Permanent address used in QR codes
-   - Controls token supply (always 1 for NFTs)
-   - Immutable once created
+| Layer | Technology |
+|------|-----------|
+| Blockchain | Solana (Devnet) |
+| NFT Protocol | Metaplex |
+| Frontend | React 18 + Vite |
+| Wallets | Phantom, Solflare |
+| Storage | Pinata (IPFS) |
+| Styling | CSS Modules |
+| Language | TypeScript |
 
-2. **📝 Metadata Account** (Product information)
-   - Stores name, symbol, and URI
-   - Links to IPFS-hosted detailed metadata
-   - Contains creator and royalty information
-
-3. **💼 Token Account** (Ownership record)
-   - Holds the NFT for the current owner
-   - Transferable between wallets
-   - Proves authenticity and ownership
-
-### Product Certificate Creation Flow
-
-1. **Brand connects wallet** to the AuthentiChain platform
-2. **Upload product details**: Name, category, serial number, description, and image
-3. **Image uploaded to Pinata** (IPFS) for decentralized storage
-4. **Metadata JSON created** with product attributes and IPFS image link
-5. **Metadata uploaded to Pinata** (IPFS) generating a unique URI
-6. **Metaplex mints NFT on Solana**:
-   - Creates Mint Account (unique product ID)
-   - Creates Metadata Account (links to IPFS metadata)
-   - Creates Token Account (assigns to brand wallet)
-   - Sets update authority to brand wallet
-7. **QR code generated** containing the product's mint address
-8. **Certificate available** in brand dashboard for download/distribution
-
-### Product Verification Flow
-
-1. **Consumer scans QR code** on product packaging
-2. **App extracts mint address** from QR code
-3. **Metaplex queries blockchain**:
-   - Looks up Mint Account by address
-   - Retrieves associated Metadata Account
-   - Fetches metadata JSON from IPFS URI
-4. **Verification result determined**:
-   - ✅ **Genuine**: NFT found with valid metadata
-   - ❌ **Suspicious**: Mint address not found or invalid
-5. **Product details displayed**: Image, name, serial number, category
-6. **Explorer link provided** for blockchain transparency
-
-### Data Flow Diagram
-
-```
-Brand Creates Product
-    ↓
-Product Image → Pinata (IPFS) → Image Hash
-    ↓
-Metadata JSON → Pinata (IPFS) → Metadata URI
-    ↓
-Metaplex.create() → Solana Blockchain
-    ↓
-Mint Address → QR Code → Product Packaging
-
-Consumer Scans QR
-    ↓
-Mint Address → Metaplex.findByMint()
-    ↓
-Metadata URI → Fetch from IPFS
-    ↓
-Display Product Details + Verification Status
-```
-
-## 🛠️ Technology Stack
-
-### Frontend
-- **React 18** - UI framework
-- **Vite** - Build tool and dev server
-- **React Router DOM** - Client-side routing
-- **CSS Modules** - Scoped styling
-
-### Blockchain & Web3
-- **Solana Web3.js** - Low-level Solana blockchain interaction
-- **Metaplex JS SDK** - NFT creation, management, and querying
-  - Industry-standard NFT protocol for Solana
-  - Handles Mint, Metadata, and Token account creation
-  - Provides high-level APIs for NFT operations
-  - Compatible with all Solana NFT marketplaces
-- **Solana Wallet Adapter** - Wallet connection (Phantom, Solflare)
-  - Multi-wallet support
-  - Standardized wallet interface
-  - Auto-connect functionality
-
-### Storage
-- **Pinata** - IPFS pinning service for images and metadata
-
-### UI Components
-- **Lucide React** - Icon library
-- **qrcode.react** - QR code generation
-- **react-qr-scanner** - QR code scanning
-
-### Development Tools
-- **TypeScript** - Type safety
-- **ESLint** - Code linting
-- **Vite Plugin Node Polyfills** - Node.js compatibility in browser
-
-## 🚀 Setting Up Locally
-
-### Prerequisites
-- **Node.js** (v16 or higher)
-- **npm** or **yarn**
-- **Solana wallet** (Phantom or Solflare browser extension)
-- **Pinata account** for IPFS storage
-
-### Installation Steps
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd AuthentiChain
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Configure environment variables**
-   
-   Create a `.env.local` file in the root directory:
-   ```env
-   VITE_PINATA_JWT=your_pinata_jwt_token
-   VITE_PINATA_GATEWAY=your_pinata_gateway_url
-   ```
-
-   To get Pinata credentials:
-   - Sign up at [Pinata.cloud](https://pinata.cloud)
-   - Generate an API JWT token from the API Keys section
-   - Note your dedicated gateway URL
-
-4. **Start development server**
-   ```bash
-   npm run dev
-   ```
-
-5. **Open in browser**
-   
-   Navigate to `http://localhost:5173`
-
-### Building for Production
+## Getting Started
 
 ```bash
-npm run build
+git clone https://github.com/CodeWithRonaldo/AuthentiChain.git
+cd AuthentiChain
+npm install
+npm run dev
 ```
 
-The built files will be in the `dist` directory.
+Create a `.env.local` file:
 
-### Preview Production Build
-
-```bash
-npm run preview
+```env
+VITE_PINATA_JWT=your_pinata_jwt
+VITE_PINATA_GATEWAY=your_pinata_gateway
 ```
 
-## 🎯 Getting Started
+## Contributing
 
-### For Brands
+Feel free to contribute or join the discussion.
 
-1. **Connect Your Wallet**
-   - Click "Connect Wallet" in the navigation
-   - Select your Solana wallet (Phantom/Solflare)
-   - Approve the connection
+**GitHub Repository:** [GitHub](https://github.com/CodeWithRonaldo/AuthentiChain)
 
-2. **Access Brand Dashboard**
-   - Navigate to the Brand Dashboard
-   - View your existing product certificates
+**Live Url:** [AuthentiChain Live](https://authenti-chain.vercel.app/)
 
-3. **Create Product Certificate**
-   - Click "Create Product"
-   - Fill in product details:
-     - Product Name (required)
-     - Category (Electronics, Fashion, Luxury, etc.)
-     - Serial Number (required, alphanumeric)
-     - Description (optional)
-     - Product Image (required, max 5MB)
-   - Submit to mint NFT certificate
-   - Wait for blockchain confirmation
 
-4. **Download QR Code**
-   - View product in dashboard
-   - Click "View QR Code"
-   - Download QR code image
-   - Print and attach to product packaging
+## License
 
-### For Consumers
-
-1. **Access Verification Page**
-   - Navigate to "Verify Product"
-
-2. **Scan QR Code** (Mobile)
-   - Allow camera permissions
-   - Point camera at product QR code
-   - Automatic redirect to verification result
-
-3. **Manual Verification** (Desktop)
-   - Enter the product mint address manually
-   - Click "Verify Product"
-
-4. **View Results**
-   - See verification status (Genuine/Suspicious)
-   - View product details and image
-   - Access Solana Explorer link for transparency
-
-## 📱 Mobile Optimization
-
-- Responsive design adapts to all screen sizes
-- Icon-only wallet button on mobile
-- Fixed-position wallet dropdown prevents overflow
-- Touch-optimized QR scanner interface
-- Streamlined mobile navigation
-
-## 🔐 Security Features
-
-- **Immutable Records**: Blockchain certificates cannot be altered
-- **Decentralized Storage**: IPFS ensures data availability
-- **Wallet Authentication**: Only authorized brands can mint certificates
-- **Transparent Verification**: All transactions visible on Solana Explorer
-
-## 🌐 Network
-
-Currently deployed on **Solana Devnet** for testing and development.
-
-For production deployment, update the network configuration in `src/components/SolanaProvider.jsx` to use Mainnet-Beta.
-
-## 📄 License
-
-This project is private and proprietary.
-
-## 🤝 Contributing
-
-This is a private project. For collaboration inquiries, please contact the project maintainers.
-
-## 📞 Support
-
-For issues or questions, please open an issue in the repository or contact the development team.
+This project is licensed under **MIT LICENSE**. See the [LICENSE](LICENSE) file for details.
 
 ---
 
-**Built with ❤️ using Solana blockchain technology**
+**Built with Love on Solana to restore trust in physical products.**
