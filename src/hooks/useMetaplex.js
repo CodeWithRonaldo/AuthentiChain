@@ -14,7 +14,6 @@ export const useMetaplex = () => {
         timeout: 60000,
       }));
     
-    // Only apply identity if wallet is connected and has public key
     if (wallet && wallet.connected) {
       mx.use(walletAdapterIdentity(wallet));
     }
